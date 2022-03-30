@@ -2,9 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:notes/main.dart';
-// import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_statusbar_manager/flutter_statusbar_manager.dart';
 import 'data_storage.dart';
 
 const String font = 'Couriert';
@@ -269,231 +267,216 @@ class EditorState extends State<Editor> with TickerProviderStateMixin {
         Navigator.pop(context);
         return false;
       },
-      child: MaterialApp(
-        title: 'Editor',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Colors.grey.shade900,
-          body: Center(
-//--------------[SCENE TRANSITION]-------------------
-            child: AnimatedBuilder(
-              animation: transitionAnimation,
-              builder: (context, child) {
-                return SlideTransition(
-                    child: child,
-                    position: Tween<Offset>(
-                            begin: const Offset(0, 0.9),
-                            end: const Offset(0, 0))
-                        .animate(CurvedAnimation(
-                            parent: transitionAnimation,
-                            curve: enter
-                                ? Curves.elasticOut
-                                : Curves.easeOutCubic)));
-              },
-//-------------------------------------------------------------
-              child: Container(
-                alignment: Alignment.topCenter,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        constraints: const BoxConstraints.expand(height: 60),
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration:
-                            BoxDecoration(color: Colors.black12, boxShadow: [
-                          BoxShadow(color: Colors.black54, blurRadius: 10),
-                          BoxShadow(color: topAppBar, blurRadius: 0),
-                        ]),
-
+      child: AnimatedBuilder(
+          animation: transitionAnimation,
+          builder: (context, child) {
+            return SlideTransition(
+                child: child,
+                position: Tween<Offset>(
+                        begin: const Offset(0, 0.9), end: const Offset(0, 0))
+                    .animate(CurvedAnimation(
+                        parent: transitionAnimation,
+                        curve:
+                            enter ? Curves.elasticOut : Curves.easeOutCubic)));
+          },
+          child: MaterialApp(
+            title: 'Editor',
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: Colors.grey.shade900,
+              appBar: AppBar(
+                backgroundColor: topAppBar,
 //------------------------[BACK BUTTON]--------------------------------
-                        child: Row(
-                          children: [
-                            IconButton(
-                                icon: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 25,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    enter = false;
-                                    home.enabled = true;
-                                  });
+                leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: Colors.white,
+                      size: 25,
+                    ),
+                    padding: const EdgeInsets.all(0),
+                    onPressed: () {
+                      print('pressed');
+                      setState(() {
+                        enter = false;
+                        home.enabled = true;
+                      });
 
-                                  SystemChrome.setEnabledSystemUIMode(
-                                      SystemUiMode.edgeToEdge,
-                                      overlays: SystemUiOverlay.values);
-                                  Navigator.pop(context);
-                                }),
+                      SystemChrome.setEnabledSystemUIMode(
+                          SystemUiMode.edgeToEdge,
+                          overlays: SystemUiOverlay.values);
+                      Navigator.pop(context);
+                    }),
 
-//-----------------------------------------------------------------------
-                            Expanded(
-                              child: Container(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 0, vertical: 10),
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey,
-                                    borderRadius: BorderRadius.circular(20)),
-                                alignment: Alignment.center,
 //------------------------------[TITLE]----------------------------------
-                                child: TextField(
-                                  controller: titleControl,
-                                  focusNode: focusNode,
-                                  textAlign: TextAlign.left,
-                                  textAlignVertical: TextAlignVertical.top,
-                                  //strutStyle: StrutStyle(height: 0),
-                                  cursorWidth: 2,
-                                  cursorRadius: Radius.circular(3),
-                                  //mouseCursor: MouseCursor.defer,
-                                  selectionWidthStyle: BoxWidthStyle.max,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: font,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20),
-                                  //cursorColor: Colors.black,
-                                  decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(
-                                        left: 0,
-                                        top: 0,
-                                        bottom: 5,
-                                      ),
-                                      border: InputBorder.none,
-                                      hintText: "Insert title",
-                                      hintStyle: TextStyle(
-                                          color: Colors.grey.shade800)),
-                                  onChanged: (String value) {
-                                    title = titleControl.text;
-                                    if (composedTitle != titleControl.text) {
-                                      changed[0] = true;
-                                      saved = false;
-                                      if (scaleControl.value == 0) {
-                                        print("box start forward 1");
-                                        boxforward();
-                                      }
-                                    } else {
-                                      changed[0] = false;
-                                      if (!changed[1]) {
-                                        if (scaleControl.value == 0) {
-                                          boxReverse();
-                                        }
-                                        saved = true;
-                                        curve.curve = curves[1];
-                                        scaleControl.reverse();
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-
-//-------------------------[SAVE BUTTON]---------------------------
-                            GestureDetector(
-                              onTap: () {
-                                if (composedTitle.isNotEmpty &&
-                                    title != composedTitle) {
-                                  print("call r");
-                                  save(update: true);
-                                  composedTitle = titleControl.text;
-                                } else {
-                                  save();
-                                }
-                                focus.unfocus();
-                                focusNode.unfocus();
-                              },
+                title: Center(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade800,
+                        borderRadius: BorderRadius.circular(20)),
+                    alignment: Alignment.center,
+                    child: TextField(
+                      controller: titleControl,
+                      focusNode: focusNode,
+                      textAlign: TextAlign.left,
+                      textAlignVertical: TextAlignVertical.top,
+                      cursorWidth: 2,
+                      cursorRadius: Radius.circular(3),
+                      selectionWidthStyle: BoxWidthStyle.max,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: font,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                            left: 0,
+                            top: 0,
+                            bottom: 5,
+                          ),
+                          border: InputBorder.none,
+                          hintText: "Insert title",
+                          hintStyle: TextStyle(color: Colors.grey.shade800)),
+                      onChanged: (String value) {
+                        title = titleControl.text;
+                        if (composedTitle != titleControl.text) {
+                          changed[0] = true;
+                          saved = false;
+                          if (scaleControl.value == 0) {
+                            print("box start forward 1");
+                            boxforward();
+                          }
+                        } else {
+                          changed[0] = false;
+                          if (!changed[1]) {
+                            if (scaleControl.value == 0) {
+                              boxReverse();
+                            }
+                            saved = true;
+                            curve.curve = curves[1];
+                            scaleControl.reverse();
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                titleSpacing: 0,
+                actions: [
+                  //-------------------------[SAVE BUTTON]---------------------------
+                  GestureDetector(
+                    onTap: () {
+                      if (composedTitle.isNotEmpty && title != composedTitle) {
+                        print("call r");
+                        save(update: true);
+                        composedTitle = titleControl.text;
+                      } else {
+                        save();
+                      }
+                      focus.unfocus();
+                      focusNode.unfocus();
+                    },
 
 //-------------------------[SAVE BUTTON ANIMATION]---------------------
-                              child: AnimatedContainer(
-                                onEnd: () {
-                                  if (!saved) {
-                                    print("icon forward, box end");
-                                    scaleControl.reset();
-                                    curve.curve = curves[0];
-                                    scaleControl.forward();
-                                  }
-                                },
-                                duration: Duration(milliseconds: 300),
-                                margin: EdgeInsets.symmetric(horizontal: edges),
-                                padding: EdgeInsets.all(0),
-                                child: AnimatedOpacity(
-                                  opacity: scale,
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.easeIn,
-                                  child: ScaleTransition(
-                                      scale: scaleTransition,
-                                      child: Icon(
-                                        Icons.done_rounded,
-                                        color: Colors.white,
-                                        size: 30,
-                                      )),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                    child: AnimatedContainer(
+                      onEnd: () {
+                        if (!saved) {
+                          print("icon forward, box end");
+                          scaleControl.reset();
+                          curve.curve = curves[0];
+                          scaleControl.forward();
+                        }
+                      },
+                      duration: Duration(milliseconds: 300),
+                      margin: EdgeInsets.symmetric(horizontal: edges),
+                      padding: EdgeInsets.all(0),
+                      child: AnimatedOpacity(
+                        opacity: scale,
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                        child: ScaleTransition(
+                            scale: scaleTransition,
+                            child: Icon(
+                              Icons.done_rounded,
+                              color: Colors.white,
+                              size: 30,
+                            )),
                       ),
+                    ),
+                  ),
+                ],
+              ),
+              body: Center(
+//--------------[SCENE TRANSITION]-------------------
+                child: Container(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(),
 
 //-------------------[Text]------------------------------
-                      Expanded(
-                        child: Container(
-                          constraints: BoxConstraints.expand(),
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            focusNode: focus,
-                            expands: true,
-                            textAlignVertical: TextAlignVertical.top,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            controller: textController,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: font,
-                                fontSize: 16),
-                            decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.grey.shade800)),
-                                hintStyle: TextStyle(color: Colors.grey),
-                                fillColor: Colors.white,
-                                contentPadding: EdgeInsets.all(10),
-                                border: OutlineInputBorder(
-                                    //borderSide: BorderSide(color: Colors.white),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
-                                hintText: "Insert text"),
-                            onChanged: (String value) {
+                        Expanded(
+                          child: Container(
+                            constraints: BoxConstraints.expand(),
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextField(
+                              focusNode: focus,
+                              expands: true,
+                              textAlignVertical: TextAlignVertical.top,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              controller: textController,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: font,
+                                  fontSize: 16),
+                              decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade800)),
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                  fillColor: Colors.white,
+                                  contentPadding: EdgeInsets.all(10),
+                                  border: OutlineInputBorder(
+                                      //borderSide: BorderSide(color: Colors.white),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  hintText: "Insert text"),
+                              onChanged: (String value) {
 //--------------------------[SAVE BUTTON ANIMTION + TEXT]-------------------
-                              if (composedText != textController.text) {
-                                changed[1] = true;
-                                text = textController.text;
-                                saved = false;
-                                if (scaleControl.value == 0) {
-                                  print("box start forward 1");
-                                  boxforward();
-                                }
-                              } else {
-                                changed[1] = false;
-                                if (!changed[0]) {
+                                if (composedText != textController.text) {
+                                  changed[1] = true;
+                                  text = textController.text;
+                                  saved = false;
                                   if (scaleControl.value == 0) {
-                                    boxReverse();
+                                    print("box start forward 1");
+                                    boxforward();
                                   }
-                                  saved = true;
-                                  curve.curve = curves[1];
-                                  scaleControl.reverse();
+                                } else {
+                                  changed[1] = false;
+                                  if (!changed[0]) {
+                                    if (scaleControl.value == 0) {
+                                      boxReverse();
+                                    }
+                                    saved = true;
+                                    curve.curve = curves[1];
+                                    scaleControl.reverse();
+                                  }
                                 }
-                              }
-                            },
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ]),
+                      ]),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          )),
     );
   }
 }
