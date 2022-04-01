@@ -181,7 +181,10 @@ class HomeState extends State<Home> {
                           color: Colors.grey.shade700),
                       height: 40,
                       width: 40,
-                      margin: EdgeInsets.all(50),
+                      margin: EdgeInsets.only(
+                          left: 50,
+                          right: 50,
+                          bottom: 50 + MediaQuery.of(context).padding.bottom),
 //------------------[ADD BUTTON]----------------------------
                       child: IconButton(
                           splashRadius: 1,
